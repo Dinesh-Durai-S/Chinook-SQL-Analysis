@@ -1,0 +1,49 @@
+/* Query 1 - Top 10 Countries by Purchase */
+SELECT c.Country Country, count(*) NoOfPurchases
+FROM Invoice i
+JOIN Customer c
+ON c.CustomerId = i.CustomerId
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT 10;
+
+/* Query 2 - Top 5 Revenue By Artists */
+SELECT a.name ArtistName, SUM(il.Quantity*il.UnitPrice) Amount
+FROM Invoice i
+JOIN InvoiceLine il
+ON il.InvoiceId = i.InvoiceId
+JOIN Track t
+ON t.TrackId = il.TrackId
+JOIN Album alb
+ON alb.AlbumId = t.AlbumId
+JOIN Artist a
+ON a.ArtistId = alb.ArtistId
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT 5;
+
+/* Query 3 - Yearly Rock Music Purchase */
+SELECT 	strftime('%Y',i.InvoiceDate) Year, count(*) RockPurchaseCount
+FROM Invoice i
+JOIN InvoiceLine il
+ON il.InvoiceId = i.InvoiceId
+JOIN Track t
+ON t.TrackId = il.TrackId
+JOIN Genre g
+ON g.GenreId = t.GenreId
+WHERE g.Name = "Rock"
+GROUP BY 1
+ORDER BY 1;
+
+/* Query 4 - Average Spending Comparison */
+Select t1.SpendingBucket, Count(*) Frequency
+From
+(SELECT c.CustomerId,c.FirstName,c.LastName, sum(i.total) TotalSpent,
+CASE WHEN sum(i.total) > 42 THEN "Above Average"
+WHEN sum(i.total) < 38 THEN "Below Average"
+ELSE "Average" END AS SpendingBucket
+FROM Customer c
+JOIN Invoice i
+ON i.CustomerId = c.CustomerId
+GROUP BY 1) t1
+Group by 1;
